@@ -1,8 +1,17 @@
 <template>
 
   <div class="console" ref="consoleWrapper" style="height: 100%;">
-    <div class="console-line" v-for="line in lines" v-html="line">
+    <div class="console-lines">
+      <div class="console-line" v-for="line in lines" v-html="line"></div>
     </div>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+      <div class="input-group">
+        <input v-model="command" class="form-control form-control-sm" />
+        <div class="input-group-append">
+          <button @click.prevent="send()" class="btn btn-sm btn-primary">Send</button>
+        </div>
+      </div>
+    </nav>
   </div>
 
 </template>
@@ -14,6 +23,7 @@ export default {
   props: ['api'],
   data() {
     return {
+      command: '',
       lines: [],
       connected: false,
     }
@@ -66,10 +76,10 @@ export default {
       }
       if (msg.messages && msg.messages.log) {
         for (let m of msg.messages.log) {
-          this.lines.push(m);
+          this.lines.push('< ' + m);
         }
       } else if (msg.error) {
-        this.lines.push(msg.error);
+        this.lines.push('< ' + msg.error);
       } else {
         console.log('wierd console', msg);
       }
@@ -78,6 +88,18 @@ export default {
         this.$nextTick(() => {
           con.scrollTop = con.scrollHeight;
         })
+    },
+
+    async send() {
+      var cmd = this.command.trim();
+      if (cmd === '' || !eventBus.api) {
+        return;
+      }
+      var response = await eventBus.api.console(cmd);
+      if (response && response.ok) {
+        this.lines.push('> ' + this.command);
+        this.command = '';
+      }
     }
   }
 }
@@ -87,14 +109,25 @@ export default {
 .console {
   color: #ccc;
   background: #222;
-  font-size: 12px;
-  font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
-  overflow-y: scroll;
-
+  flex-direction: column;
+  height: 100%;
 }
+
+.console-lines {
+  flex: 1 1;
+  font-size: 12px;
+  overflow-y: scroll;
+  padding: 4px;
+}
+
+.console-line,
+.console .form-control {
+  font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+}
+
 .console-line {
-  font: monospace;
   word-wrap: normal;
   margin: 0;
 }
+
 </style>

@@ -1,19 +1,30 @@
 <template>
-	<div class="codepane">
-		<input v-model="branch" />
-		<vue-select class="module-select" v-model="module" :options="moduleNames">
-		</vue-select>
-		<input v-model="module" />
-		<button @click.prevent="load()">Load</button>
-		<button @click.prevent="save()">Save</button>
-		<codemirror 
-			ref="editor"
-			:code="code"
-			:options="editorOptions"
-			@change="changeCode"
-		></codemirror>
+  <div class="codepane">
 
-	</div>
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+      <form class="form-inline">
+        <input v-model="branch" class="form-control form-control-sm mr-2" />
+
+        <input v-model="module" class="form-control form-control-sm mr-2" />
+
+        <vue-select class="module-select" v-model="module" :options="moduleNames">
+        </vue-select>
+      </form>
+
+      <div>
+        <button @click.prevent="load()" class="btn btn-sm btn-primary">Load</button>
+        <button @click.prevent="save()" class="btn btn-sm btn-primary">Save</button>
+      </div>
+    </nav>
+
+    <codemirror 
+      ref="editor"
+      :code="code"
+      :options="editorOptions"
+      @change="changeCode">
+    </codemirror>
+
+  </div>
 </template>
 
 <script>
@@ -88,14 +99,21 @@ export default {
 
 <style>
 .codepane {
-	height: 100%;
+  flex: 1 1;
+  flex-direction: column;
 }
+
+.codepane .navbar {
+  justify-content: space-between;
+}
+
 .codepane .CodeMirror {
-	height: 100%;
+  height: 100%;
+  font-size: 12px;
 }
 
 .module-select {
-	max-width: 50%;
-	display: inline-block;
+  max-width: 50%;
+  display: inline-block;
 }
 </style>

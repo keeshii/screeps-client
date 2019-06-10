@@ -1,7 +1,11 @@
 <template>
 
-  <div id="root">
-    Waiting for login...
+  <div class="container mt-4 mb-4">
+
+    <div class="alert alert-primary" role="alert">
+      Waiting for login...
+    </div>
+
   </div>
 
 </template>

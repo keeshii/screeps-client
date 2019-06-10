@@ -1,13 +1,37 @@
 <template>
 
   <div id="app">
-    <div id="links">
-      <router-link :to="{name: 'login'}">login</router-link>
-      <router-link :to="{name: 'register'}">register</router-link>
-      <router-link :to="{name: 'room', params: {roomName: 'E0N0'}}">room</router-link>
-      <router-link :to="{name: 'map'}">map</router-link>
-      <router-link :to="{name: 'logout'}">logout</router-link>
-    </div>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <router-link :to="{name: 'login'}" class="nav-link" active-class="active">
+            login
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'register'}" class="nav-link" active-class="active">
+            register
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'room', params: {roomName: 'E0N0'}}" class="nav-link" active-class="active">
+            room
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'map'}" class="nav-link" active-class="active">
+            map
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="{name: 'logout'}" class="nav-link" active-class="active">
+            logout
+          </router-link>
+        </li>
+      </ul>
+    </nav>
+
     <router-view></router-view>
   </div>
 
@@ -30,52 +54,30 @@ export default {
 </script>
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  height: 100%;
-  position: relative;
-}
+  html, body {
+    height: 100%;
+  }
 
-#app {
-  flex-direction: column;
-  /*display: flex;*/
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  height: 100%;
-}
+  #app {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+  }
 
-#app > table {
-  height: 100%;
-}
+  #app > .navbar {
+    z-index: 1;
+  }
 
-#topbar {
-  /*height: 20px;*/
-}
+  .navbar-expand-md {
+    flex: 0 0 auto;
+  }
 
-#main-td {
-  position: relative;
-  height: 100%;
-}
+  .navbar-expand-md .navbar-nav .nav-link {
+    padding-right: .5rem;
+    padding-left: .5rem;
+  }
 
-#main {
-  /*flex: 1;*/
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
-
-#roomMaps {
-  flex-direction: row;
-  display: flex;
-  height: calc(150px + 1em + 4px + 1em); /* scrollbar */
-  background: black;
-  overflow-y: hidden;
-  overflow-x: scroll;
-}
-
+  .navbar-expand-md .navbar-nav {
+    flex-direction: row;
+  }
 </style>

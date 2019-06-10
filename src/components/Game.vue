@@ -1,6 +1,6 @@
 <template>
 
-  <div style="height: 100%;">
+  <div class="game-canvas-container">
     
   </div>
 
@@ -8,6 +8,8 @@
 
 <script>
 import eventBus from '../global-events';
+
+var CANVAS_SIZE = 750;
 
 export default {
   props: ['client'],
@@ -61,7 +63,17 @@ export default {
   	},
 
   	resizeView() {
-	  	this.client.resize(this.$el.offsetWidth, this.$el.offsetHeight);
+          if (!this.client) {
+            return;
+          }
+          var width = this.$el.parentElement.offsetWidth,
+              height = this.$el.parentElement.offsetHeight,
+              size = Math.min(width, height);
+
+          this.$el.style.width = size + 'px';
+          this.$el.style.height = size + 'px';
+
+          this.client.resize(CANVAS_SIZE, CANVAS_SIZE);
   	},
 
     attachClient(client) {
@@ -81,5 +93,14 @@ export default {
 </script>
 
 <style>
+  .game-canvas-container {
+    background: #444;
+    margin: 0 auto;
+    padding: 20px;
+  }
 
+  .game-canvas-container canvas {
+    height: 100% !important;
+    width: 100% !important;
+  }
 </style>

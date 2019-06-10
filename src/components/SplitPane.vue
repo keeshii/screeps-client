@@ -1,9 +1,15 @@
 <template>
-  <div class="split-pane" @mousemove="dragMove" @mouseup="dragEnd" @mouseleave="dragEnd" :class="{ 'is-dragging': dragging }">
+  <div class="split-pane"
+    @mousemove="dragMove" @mouseup="dragEnd" @mouseleave="dragEnd"
+    @touchmove="dragMove" @touchend="dragEnd"
+    :class="{ 'is-dragging': dragging }">
     <div class="split-pane-item" :style="{ width: splitLeft }">
       <slot name="left"></slot>
     </div>
-    <div class="split-pane-gutter" @mousedown="dragStart" :style="{ width: gutter + 'px' }"></div>
+    <div class="split-pane-gutter"
+      @mousedown="dragStart"
+      @touchstart="dragStart"
+      :style="{ width: gutter + 'px' }"></div>
     <div class="split-pane-item" :style="{ width: splitRight }">
       <slot name="right"></slot>
     </div>
@@ -32,15 +38,17 @@ export default {
   },
   methods: {
     dragStart (e) {
+      var pageX = e.touches ? e.touches[0].pageX : e.pageX;
       e.preventDefault();
-      this.dragging = true
-      this.startX = e.pageX
-      this.startSplit = this.split
+      this.dragging = true;
+      this.startX = pageX;
+      this.startSplit = this.split;
     },
     dragMove (e) {
+      var pageX = e.touches ? e.touches[0].pageX : e.pageX;
       if (this.dragging) {
         e.preventDefault();
-        const dx = e.pageX - this.startX
+        const dx = pageX - this.startX
         const totalWidth = this.$el.offsetWidth
         let split = this.startSplit + (dx / totalWidth * 100)
         this.split = Math.max(10, Math.min(90, split));

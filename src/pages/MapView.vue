@@ -1,6 +1,9 @@
 <template>
-  <div class="mapview" ref="mapview" style="height: 100vh; width: 100vw;"
-    @mousedown.capture="mouseDown($event)" @mousemove.capture="mouseMove($event)" @mouseup.capture="mouseUp($event)" @click.capture="click($event)" >
+  <div class="mapview" ref="mapview"
+    @mousedown.capture="mouseDown($event)" @mousemove.capture="mouseMove($event)" @mouseup.capture="mouseUp($event)"
+    @touchstart.capture="mouseDown($event)" @touchmove.capture="mouseMove($event)" @touchend.capture="mouseUp($event)"
+    @click.capture="click($event)" >
+
     <div class="mapview-inner" :style="{left: xpan + 'px', top: ypan + 'px', width: (hsquares * squareSize)+'px', height: (vsquares * squareSize)+'px'}">
       <div class="y" v-for="y in vsquares" :key="y + yoffsetreal" :style="{width: hsquares*squareSize+'px', height: squareSize+'px'}">
         <div class="x" v-for="x in hsquares" :key="x + xoffsetreal" style="display: inline-block;" :style="{width: squareSize+'px', height: squareSize+'px'}">
@@ -8,6 +11,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -40,22 +44,21 @@ export default {
   props: ['shard'],
 
   data() {
-    let xoffset = 0;
-    let yoffset = 0;
-    if (this.$route.query.x)
-      xoffset = +this.$route.query.x;
-    if (this.$route.query.y)
-      yoffset = +this.$route.query.y;
+    let xoffset = -6;
+    let yoffset = -6;
+
     if (this.$route.query.room) {
       let [shard, wx, wy] = fromRoomName(this.$route.query.room);
       this.shard = shard;
-      xoffset = +wx;
-      yoffset = +wy;
+      xoffset = wx;
+      yoffset = wy;
     }
+
     return {
       squareSize: 150,
       totalMovement: 0,
       pan: {x: 0, y: 0},
+      touchStart: {x: 0, y:0},
       offsetWidth: 0,
       offsetHeight: 0,
       xoffset,
@@ -111,17 +114,31 @@ export default {
     },
 
     mouseDown(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      // console.log('mouseDown', e);
       this.totalMovement = 0;
+      if (e.touches) {
+        this.touchStart.x = e.touches[0].clientX;
+        this.touchStart.y = e.touches[0].clientY;
+      } else {
+        e.preventDefault();
+        e.stopPropagation();
+      }
     },
     mouseMove(e) {
-      if (!e.buttons) return;
+      if (!e.buttons && !e.touches) return;
+
+      var movementX = e.movementX;
+      var movementY = e.movementY;
+
+      if (e.touches) {
+        movementX = event.touches[0].clientX - this.touchStart.x;
+        movementY = event.touches[0].clientY - this.touchStart.y;
+        this.touchStart.x = event.touches[0].clientX;
+        this.touchStart.y = event.touches[0].clientY;
+      }
 
       //console.log('mouseMove', e);
-      this.totalMovement += Math.abs(e.movementX) + Math.abs(e.movementY);
-      this.pan.x -= e.movementX;
+      this.totalMovement += Math.abs(movementX) + Math.abs(movementY);
+      this.pan.x -= movementX;
       while (this.pan.x < 0) {
         this.pan.x += this.squareSize;
         this.xoffset -= 1;
@@ -130,7 +147,7 @@ export default {
         this.pan.x -= this.squareSize;
         this.xoffset += 1;
       }
-      this.pan.y -= e.movementY;
+      this.pan.y -= movementY;
       while (this.pan.y < 0) {
         this.pan.y += this.squareSize;
         this.yoffset -= 1;
@@ -170,12 +187,17 @@ export default {
 <style>
 
 .mapview {
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
   overflow: hidden;
-  position: relative;
+  position: fixed;
+  right: 0;
+  top: 0;
 }
 
 .mapview-inner {
-  position: relative;
+  position: absolute;
 }
 
 </style>

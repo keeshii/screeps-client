@@ -1,38 +1,66 @@
 <template>
 
-  <div id="app">
-    <table cellpadding="0" cellspacing="0" width="100%" height="100%">
-      <tr height="0%"><td id="room-topbar">
-        <span>Credits: {{money}}</span>
-        <span>CPU: {{cpu}}</span>
-        <span>Memory: {{memory}}</span>
-        <select :value="roomName" @input="navigateToRoom($event.target.value)">
-          <option v-for="roomName in rooms" :key="roomName" :value="roomName">
-            {{ roomName }}
-          </option>
-        </select>
-        <input id="room" :value="roomName" @change="navigateToRoom($event.target.value)" />
-        <router-link :to="{name:'map', query: {room: roomName}}">map</router-link>
-      </td></tr>
-      <tr><td id="room-main-td">
-        <div id="room-main">
-          <split-pane @resize="onResize()">
-            <div slot="left" style="height: 100%;">
-              <div id="roomMaps">
-                <room-map v-for="roomName in rooms" :key="roomName" :room-name="roomName" :api="api" @click="navigateToRoom(roomName)"></room-map>
-              </div>
-              <game :client="client"></game>
-            </div>
-            <div slot="right" style="height: 100%;">
-              <split-pane-vertical>
-                <code-pane slot="left" :api="api"></code-pane>
-                <console slot="right" :api="api"></console>
-              </split-pane-vertical>
-            </div>
-          </split-pane>
-        </div>
-      </td></tr>
-    </table>
+  <div id="room-view" :class="'tab-' + tabName">
+    <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
+      <ul class="navbar-nav">
+        <li class="nav-item" :class="{active: tabName === 'room'}">
+          <a href="#" class="nav-link" @click="setTab('room')">
+            Room
+          </a>
+        </li>
+        <li class="nav-item" :class="{active: tabName === 'code'}">
+          <a href="#" class="nav-link" @click="setTab('code')">
+            Code
+          </a>
+        </li>
+        <li class="nav-item" :class="{active: tabName === 'console'}">
+          <a href="#" class="nav-link" @click="setTab('console')">
+            Console
+          </a>
+        </li>
+      </ul>
+
+      <div tab-room>
+        <form class="form-inline">
+
+          <select :value="roomName" @input="navigateToRoom($event.target.value)"
+            class="form-control custom-select custom-select-sm mr-2"
+            v-show="rooms.length">
+            <option v-for="roomName in rooms" :key="roomName" :value="roomName">
+              {{ roomName }}
+            </option>
+          </select>
+
+          <input id="room" :value="roomName" @change="navigateToRoom($event.target.value)"
+            class="form-control form-control-sm mr-2" />
+
+          <router-link :to="{name:'map', query: {room: roomName}}"
+            class="btn btn-sm btn-primary">map</router-link>
+
+        </form>
+      </div>
+
+      <div class="cpu-stats" tab-console>
+        <span class="badge badge-warning">Credits: {{money}}</span>
+        <span class="badge badge-primary">CPU: {{cpu}}</span>
+        <span class="badge badge-success">Memory: {{memory}}</span>
+      </div>
+
+    </nav>
+
+    <div class="room-preview" tab-room>
+      <div class="room-list">
+        <room-map v-for="roomName in rooms" :key="roomName" :room-name="roomName" :api="api" @click="navigateToRoom(roomName)"></room-map>
+      </div>
+      <div class="game-container">
+        <game :client="client"></game>
+      </div>
+    </div>
+
+    <code-pane :api="api" ref="codePane" tab-code></code-pane>
+
+    <console :api="api" tab-console></console>
+
   </div>
 
 </template>
@@ -50,7 +78,9 @@ import eventBus from '../global-events';
 export default {
   props: ['roomName'],
   data() {
-    return {};
+    return {
+      tabName: 'room'
+    };
   },
 
   created() {
@@ -117,6 +147,16 @@ export default {
 
     onResize() {
       eventBus.$emit('resize');
+    },
+
+    setTab(tabName) {
+
+      // We have to manually refresh the code area after tab switch
+      if (tabName === 'code') {
+        setTimeout(() => this.$refs.codePane.$refs.editor.refresh());
+      }
+
+      this.tabName = tabName;
     }
   },
 
@@ -132,52 +172,69 @@ export default {
 </script>
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  height: 100%;
-  position: relative;
-}
 
-#app {
-  flex-direction: column;
-  /*display: flex;*/
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  height: 100%;
-}
+  #room-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 
-#app > table {
-  height: 100%;
-}
+  #room-view .navbar {
+    justify-content: space-between;
+  }
 
-#topbar {
-  /*height: 20px;*/
-}
+  #room-view .navbar .form-inline {
+    flex-flow: row;
+  }
 
-#room-main-td {
-  position: relative;
-  height: 100%;
-}
+  #room-view .navbar .form-inline input {
+    max-width: 80px;
+  }
 
-#room-main {
-  /*flex: 1;*/
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
+  .cpu-stats {
+    display: flex;
+  }
 
-#roomMaps {
-  flex-direction: row;
-  display: flex;
-  height: calc(150px + 1em + 4px + 1em); /* scrollbar */
-  background: black;
-  overflow-y: hidden;
-  overflow-x: scroll;
-}
+  .cpu-stats > span {
+    margin: 0 .25em;
+  }
+
+  .room-preview {
+    flex: 1 1;
+    flex-direction: column;
+  }
+
+  .room-preview .room-list {
+    align-items: center;
+    background: #2b2b2b;
+    display: flex;
+    min-height: 180px;
+    flex: 0 0 auto;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .room-preview .room-list .roomMap2 {
+    flex: 0 0 auto;
+    margin: 0 15px
+  }
+
+  .room-preview .game-container {
+    background: #444;
+    display: flex;
+    flex: 1 1;
+  }
+
+  [tab-room],
+  [tab-code],
+  [tab-console] {
+    display: none;
+  }
+
+  .tab-room [tab-room],
+  .tab-code [tab-code],
+  .tab-console [tab-console] {
+    display: flex;
+  }
 
 </style>

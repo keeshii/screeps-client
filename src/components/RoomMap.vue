@@ -1,6 +1,6 @@
 <template>
-  <div class="roomMap2" @click="$emit('click', $event)">
-    <img :src="background" />
+  <div class="roomMap2" @click="$emit('click', $event)" :class="{ 'is-loading': isLoading }">
+    <img :src="background" @load="onLoad" />
     <div class="overlay" v-for="k in kinds" :key="k">
       <div class="mapSpot" v-for="(xy, i) in data[k]" :key="i" :style="mapSpotStyle(k, xy)">
       </div>
@@ -31,6 +31,7 @@ export default {
   data: function() {
     return {
       data: {},
+      isLoading: true
     }
   },
   mounted() {
@@ -112,6 +113,10 @@ export default {
     mapSpotStyle(kind, spot) {
       // console.log('mapSpotStyle', kind, spot);
       return {top: 3*spot[1]+'px', left: 3*spot[0]+'px', background: this.color(kind)};
+    },
+
+    onLoad(e) {
+      this.isLoading = false;
     }
   }
 }
@@ -119,19 +124,31 @@ export default {
 
 <style>
 .roomMap2 {
-  position: relative;
+  background: #2b2b2b;
+  position: absolute;
   width: 150px;
-  height: calc(150px + 1em + 4px);
+  height: 150px;
+}
+
+.roomMap2.is-loading {
+  outline: 1px solid rgba(255,255,255,0.1);
+}
+
+.roomMap2.is-loading img,
+.roomMap2.is-loading .roomMapName {
+   display: none;
 }
 
 .roomMapName {
+  bottom: 0;
+  color: rgba(255, 255, 255, 0.5);
+  position: absolute;
   margin: 0;
   padding: 0;
-  /*color: white;*/
+  right: 0;
   font-size: 1em;
   font-family: monospace;
   line-height: 1em;
-  text-align: center;
 }
 
 .overlay {
@@ -146,7 +163,7 @@ export default {
 }
 
 img {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  height: 100%;
 }
 </style>

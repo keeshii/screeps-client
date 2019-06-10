@@ -1,9 +1,15 @@
 <template>
-  <div class="split-panev" @mousemove="dragMove" @mouseup="dragEnd" @mouseleave="dragEnd" :class="{ 'is-dragging': dragging }">
+  <div class="split-panev"
+    @mousemove="dragMove" @mouseup="dragEnd" @mouseleave="dragEnd"
+    @touchmove="dragMove" @touchend="dragEnd"
+    :class="{ 'is-dragging': dragging }">
     <div class="split-panev-item" :style="{ height: splitLeft }">
       <slot name="left"></slot>
     </div>
-    <div class="split-panev-gutter" @mousedown="dragStart" :style="{ height: gutter + 'px' }"></div>
+    <div class="split-panev-gutter"
+      @mousedown="dragStart"
+      @touchstart="dragStart"
+      :style="{ height: gutter + 'px' }"></div>
     <div class="split-panev-item" :style="{ height: splitRight }">
       <slot name="right"></slot>
     </div>
@@ -32,15 +38,17 @@ export default {
   },
   methods: {
     dragStart (e) {
+      var pageY = e.touches ? e.touches[0].pageY : e.pageY;
       e.preventDefault();
       this.dragging = true
-      this.startY = e.pageY
+      this.startY = pageY
       this.startSplit = this.split
     },
     dragMove (e) {
+      var pageY = e.touches ? e.touches[0].pageY : e.pageY;
       if (this.dragging) {
         e.preventDefault();
-        const dx = e.pageY - this.startY
+        const dx = pageY - this.startY
         const totalHeight = this.$el.offsetHeight
         let split = this.startSplit + (dx / totalHeight * 100)
         this.split = Math.max(10, Math.min(90, split));

@@ -1,34 +1,41 @@
 <template>
-	<div>
-		<form @submit.prevent="register()">
-          <div>
-          	<label for="host">host:</label>
-            <input id="host" v-model="host" />
-          </div>
-          <div>
-            <label for="port">port:</label>
-            <input id="port" v-model="port" />
-          </div>
-          <div>
-            <label for="secure">secure:</label>
-            <input id="secure" v-model="secure" type="checkbox" />
-          </div>
-          <div>
-            <label for="username">username:</label>
-            <input id="username" v-model="username" />
-          </div>
-          <div>
-            <label for="email">email:</label>
-            <input id="email" v-model="email" />
-          </div>
-          <div>
-            <label for="password">password:</label>
-            <input id="password" v-model="password" type="password" />
-          </div>
+  <div class="container mt-4 mb-4">
 
-          <button @click.prevent="register()">register</button>
-        </form>
-	</div>
+  <div class="card">
+    <div class="card-body">
+      <form @submit.prevent="register()">
+        <div class="form-group">
+          <label for="host">host:</label>
+          <input id="host" v-model="host" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="port">port:</label>
+          <input id="port" v-model="port" class="form-control" />
+        </div>
+        <div class="form-group form-check">
+          <input id="secure" v-model="secure" type="checkbox" class="form-check-input" />
+          <label for="secure" class="form-check-label">Secure</label>
+        </div>
+        <div class="form-group">
+          <label for="username">username:</label>
+          <input id="username" v-model="username" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="email">email:</label>
+          <input id="email" v-model="email" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="password">password:</label>
+          <input id="password" v-model="password" type="password" class="form-control" />
+        </div>
+        <div class="text-right">
+          <button @click.prevent="register()" class="btn btn-primary">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  </div>
 </template>
 
 <script>
@@ -90,7 +97,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
