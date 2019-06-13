@@ -9,7 +9,10 @@
 <script>
 import eventBus from '../global-events';
 
-var CANVAS_SIZE = 750;
+var CANVAS_SIZE = 750,
+    CANVAS_MIN_SIZE = 100;
+
+var resizeRef;
 
 export default {
   props: ['client'],
@@ -31,7 +34,12 @@ export default {
   },
 
   created() {
-  	// this.client.connect();
+    resizeRef = this.resizeView.bind(this);
+    window.addEventListener('resize', resizeRef);
+  },
+
+  destroyed() {
+    window.removeEventListener('resize', resizeRef);
   },
 
   mounted() {
@@ -68,7 +76,7 @@ export default {
           }
           var width = this.$el.parentElement.offsetWidth,
               height = this.$el.parentElement.offsetHeight,
-              size = Math.min(width, height);
+              size = Math.max(CANVAS_MIN_SIZE, Math.min(width, height));
 
           this.$el.style.width = size + 'px';
           this.$el.style.height = size + 'px';
