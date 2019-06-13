@@ -22,6 +22,7 @@
 
       <div tab-room>
         <form class="form-inline">
+          <button class="btn btn-sm btn-dark mr-2" @click="showPlaceSpawnModal()">Place spawn</button>
 
           <select :value="roomName" @input="navigateToRoom($event.target.value)"
             class="form-control custom-select custom-select-sm mr-2"
@@ -61,6 +62,46 @@
 
     <console :api="api" tab-console></console>
 
+    <!-- Modal -->
+    <div class="modal show" tabindex="-1" v-if="isPlaceSpawnVisible">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Place spawn</h5>
+            <button type="button" class="close" @click="isPlaceSpawnVisible = false">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Room</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" v-model="placeSpawnRoom" placeholder="Room">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Position</label>
+                <div class="col-sm-5">
+                  <input type="number" min="1" max="50" class="form-control" v-model="placeSpawnX" placeholder="X">
+                </div>
+                <div class="col-sm-5">
+                  <input type="number" min="1" max="50" class="form-control" v-model="placeSpawnY" placeholder="Y">
+                </div>
+              </div>
+            </form>
+            <div class="invalid-feedback" v-if="placeSpawnError">{{placeSpawnError}}</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="isPlaceSpawnVisible = false">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="respawn()">Respawn</button>
+            <button type="button" class="btn btn-primary" @click="placeSpawn()">Place spawn</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop show" v-if="isPlaceSpawnVisible"></div>
+
   </div>
 
 </template>
@@ -79,7 +120,12 @@ export default {
   props: ['roomName'],
   data() {
     return {
-      tabName: 'room'
+      tabName: 'room',
+      isPlaceSpawnVisible: false,
+      placeSpawnError: '',
+      placeSpawnRoom: '',
+      placeSpawnX: 25,
+      placeSpawnY: 25
     };
   },
 
@@ -157,6 +203,49 @@ export default {
       }
 
       this.tabName = tabName;
+    },
+
+    showPlaceSpawnModal() {
+      this.isPlaceSpawnVisible = true;
+      this.placeSpawnRoom = this.roomName;
+      this.placeSpawnError = '';
+    },
+
+    async placeSpawn() {
+      if (!eventBus.api) {
+        return;
+      }
+      this.placeSpawnError = '';
+      var spawnName = 'Spawn1';
+      var response;
+      try {
+        response = await eventBus.api.placeSpawn(spawnName, this.placeSpawnRoom, this.placeSpawnX, this.placeSpawnY);
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        this.isPlaceSpawnVisible = false;
+        return;
+      } catch (error) {
+        this.placeSpawnError = error.message;
+      }
+    },
+
+    async respawn() {
+      if (!eventBus.api) {
+        return;
+      }
+      this.placeSpawnError = '';
+      var response;
+      try {
+        response = await eventBus.api.respawn();
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        this.isPlaceSpawnVisible = false;
+        return;
+      } catch (error) {
+        this.placeSpawnError = error.message;
+      }
     }
   },
 
@@ -189,6 +278,10 @@ export default {
 
   #room-view .navbar .form-inline input {
     max-width: 80px;
+  }
+
+  #room-view .navbar .form-inline button {
+    white-space: nowrap;
   }
 
   .cpu-stats {
@@ -235,6 +328,15 @@ export default {
   .tab-code [tab-code],
   .tab-console [tab-console] {
     display: flex;
+  }
+
+  .modal {
+    display: none;
+  }
+
+  .invalid-feedback,
+  .modal.show {
+    display: block;
   }
 
 </style>
