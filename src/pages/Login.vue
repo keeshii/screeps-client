@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4 mb-4">
 
-  <div class="card">
+  <div class="card mb-2">
     <div class="card-body">
       <form @submit.prevent="login()">
         <div class="form-group">
@@ -21,10 +21,6 @@
           <input id="username" v-model="auth.username" class="form-control" />
         </div>
         <div class="form-group">
-          <label for="email">email:</label>
-          <input id="email" v-model="auth.email" class="form-control" />
-        </div>
-        <div class="form-group">
           <label for="password">password:</label>
           <input id="password" v-model="auth.password" type="password" class="form-control" />
         </div>
@@ -41,6 +37,10 @@
     </div>
   </div>
 
+  <p v-if="status" :class="{'text-danger': error}">
+    {{status}}
+  </p>
+
   </div>
 </template>
 
@@ -52,8 +52,10 @@ import { ScreepsAPI } from '../scripts/screepsAPI';
 
 export default {
   data() {
-  	return {
+    return {
       auth,
+      status: '',
+      error: false
     }
   },
 
@@ -69,15 +71,54 @@ export default {
         if (this.$route.query.backto){
           this.$router.replace(this.$route.query.backto);
         } else {
-          this.$router.replace('/');
+          this.status = 'Waiting for login...';
         }
-      })
+      });
   },
 
   methods: {
-  	login() {
-      auth.connect();
-  	},
+    login() {
+      this.error = false;
+      this.status = 'Waiting for login...';
+      var promise = auth.connect();
+
+      if (!promise) {
+        this.error = true;
+        this.status = 'Invalid form data';
+        return;
+      }
+
+      promise
+        .then(() => {
+          this.error = false;
+          this.status = 'OK';
+          this.auth.email = eventBus.client.me.email;
+
+          let unwatch = this.$watch(function() { return eventBus.client && eventBus.client.rooms}, function(rooms) {
+            if (!rooms) return;
+            this.loadedRooms(rooms);
+            unwatch();
+          }, {immediate: true});
+        })
+        .catch(error => {
+          error = error && error.message ? error.message : error;
+          error = error || 'Unknown error';
+          this.error = true;
+          this.status = error;
+        });
+    },
+
+    loadedRooms(rooms) {
+      if (!rooms[0]) {
+        this.$router.replace({name: 'map'});
+        return;
+      }
+      let room = rooms[0];
+      if (this.$route.path === '/login') {
+        this.$router.replace({name: 'room', params: {roomName: room}});
+      }
+    },
+
     externalauth(which) {
       // let ret = "//" + auth.host + ":" + auth.port + "/" + window.location.path + "#/login";
       window.open("//" + auth.host + ":" + auth.port + "/api/auth/" + which);

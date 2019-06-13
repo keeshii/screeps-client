@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4 mb-4">
 
-  <div class="card">
+  <div class="card mb-2">
     <div class="card-body">
       <form @submit.prevent="register()">
         <div class="form-group">
@@ -28,12 +28,20 @@
           <label for="password">password:</label>
           <input id="password" v-model="password" type="password" class="form-control" />
         </div>
+        <div class="form-group">
+          <label for="password">server password:</label>
+          <input id="password" v-model="serverPassword" type="password" class="form-control" />
+        </div>
         <div class="text-right">
           <button @click.prevent="register()" class="btn btn-primary">Register</button>
         </div>
       </form>
     </div>
   </div>
+
+  <p v-if="status" :class="{'text-danger': error}">
+    {{status}}
+  </p>
 
   </div>
 </template>
@@ -46,19 +54,31 @@ import { ScreepsAPI } from '../scripts/screepsAPI';
 export default {
   data() {
   	return {
-      host: window.location.hostname,
-      port: window.location.port,
-      secure: window.location.protocol === 'https:',
-  		username: '',
-  		email: '',
-  		password: '',
+          host: window.location.hostname,
+          port: window.location.port,
+          secure: window.location.protocol === 'https:',
+          username: '',
+          email: '',
+          password: '',
+          serverPassword: '',
+          status: '',
+          error: false
   	}
   },
 
   methods: {
-  	async register() {
+    async register() {
       if (eventBus.api) eventBus.api.disconnect();
       if (eventBus.client) eventBus.client.disconnect();
+
+      if (!this.username.trim() || !this.password.trim()) {
+        this.error = true;
+        this.status = 'Invalid form data';
+        return;
+      }
+
+      this.error = false;
+      this.status = 'Sending register request...';
 
       eventBus.api = new ScreepsAPI({
           host: this.host,
@@ -69,31 +89,32 @@ export default {
           password: this.password,
         });
 
-      let res = await eventBus.api.register(this.username, this.email, this.password);
-      if (res.ok) {
-      	eventBus.api = api;
+      eventBus.api.register(this.username, this.email, this.password, this.serverPassword)
+        .then(res => {
+          if (res.ok) {
+            this.error = false;
+            this.status = 'OK';
 
-		window.localStorage.setItem("saved-credentials", JSON.stringify({
-			host: this.host,
-			port: this.port,
-			secure: this.secure,
+            window.localStorage.setItem("saved-credentials", JSON.stringify({
+                    host: this.host,
+                    port: this.port,
+                    secure: this.secure,
 
-			email: this.email,
-			password: this.password,
-		}))
-
-		eventBus.api = new ScreepsAPI({
-		  host: this.host,
-		  port: this.port,
-		  secure: this.secure,
-
-		  email: this.email,
-		  password: this.password,
-		})
-		eventBus.client = new ScreepsClient(eventBus.api);
-		eventBus.client.connect();
-      }
-  	}
+                    email: this.email,
+                    password: this.password,
+            }));
+          } else {
+            this.error = true;
+            this.status = (res && res.error) || 'Unknown error';
+          }
+        })
+        .catch(error => {
+          error = error && error.message ? error.message : error;
+          error = error || 'Unknown error';
+          this.error = true;
+          this.status = error;
+        });
+    }
   }
 }
 </script>

@@ -5,15 +5,16 @@
       <form class="form-inline">
         <input v-model="branch" class="form-control form-control-sm mr-2" />
 
-        <input v-model="module" class="form-control form-control-sm mr-2" />
-
-        <vue-select class="module-select" v-model="module" :options="moduleNames">
-        </vue-select>
+        <select class="custom-select custom-select-sm mr-2" v-model="module">
+          <option v-for="(data, file) in modules" :value="file">{{file}}</option>
+        </select>
       </form>
 
       <div>
-        <button @click.prevent="load()" class="btn btn-sm btn-primary">Load</button>
-        <button @click.prevent="save()" class="btn btn-sm btn-primary">Save</button>
+        <button @click.prevent="add()" class="btn btn-sm btn-primary">Add</button>
+        <button @click.prevent="remove()" class="btn btn-sm btn-primary">Delete</button>
+        <button @click.prevent="load()" class="btn btn-sm btn-primary">Load all</button>
+        <button @click.prevent="save()" class="btn btn-sm btn-primary">Save all</button>
       </div>
     </nav>
 
@@ -23,6 +24,36 @@
       :options="editorOptions"
       @change="changeCode">
     </codemirror>
+
+    <!-- Modal -->
+    <div class="modal show" tabindex="-1" v-if="isAddVisible">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add file</h5>
+            <button type="button" class="close" @click="isAddVisible = false">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" v-model="addName" placeholder="File name">
+                </div>
+              </div>
+            </form>
+            <div class="invalid-feedback" v-if="addError">{{addError}}</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="isAddVisible = false">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="addConfirm()">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop show" v-if="isAddFileVisible"></div>
 
   </div>
 </template>
@@ -38,6 +69,9 @@ export default {
 			branch: 'default',
 			modules: {},
 			module: 'main',
+                        isAddVisible: false,
+                        addError: '',
+                        addName: '',
 			editorOptions: {
 				theme: 'monokai',
 				lineNumbers: true,
@@ -79,7 +113,44 @@ export default {
 				this.modules = modules;
 			else
 				this.modules = {};
+                        if (!this.modules[this.module]) {
+                          let files = Object.keys(this.modules);
+                          this.module = files[0];
+                        }
 		},
+                add() {
+                  this.isAddVisible = true;
+                  this.addName = '';
+                  this.addError = '';
+                },
+                addConfirm() {
+                  var name = this.addName.trim();
+                  if (name === '') {
+                    this.addError = 'Invalid name';
+                    return;
+                  }
+                  if (this.modules[name] !== undefined) {
+                    this.addError = 'File exists';
+                    return;
+                  }
+                  this.modules[name] = '';
+                  this.isAddVisible = false;
+                },
+                remove() {
+                  if (this.module === 'main') {
+                    return;
+                  }
+                  var files = Object.keys(this.modules);
+                  var index = files.indexOf(this.module);
+                  console.log(this.module, this.modules, files, index);
+                  files = files.filter(module => module !== this.module);
+                  var newModules = {};
+                  files.forEach(module => newModules[module] = this.modules[module]);
+                  this.modules = newModules;
+                  this.module = files[index === files.length ? index - 1 : index];
+                  console.log(this.module, this.modules, files, index);
+                  this.save();
+                },
 		save() {
 			eventBus.api.setCode(this.branch, this.modules);
 		},
@@ -112,8 +183,7 @@ export default {
   font-size: 12px;
 }
 
-.module-select {
-  max-width: 50%;
-  display: inline-block;
+.codepane select {
+  max-width: 150px;
 }
 </style>

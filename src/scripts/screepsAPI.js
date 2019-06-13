@@ -109,8 +109,8 @@ export class ScreepsAPI extends EventEmitter {
 
 
 
-  async register(username, email, password) {
-    let res = await this.rawreq('POST', '/api/register/submit', {username, email, password});
+  async register(username, email, password, serverPassword) {
+    let res = await this.rawreq('POST', '/api/register/submit', {username, email, password, serverPassword});
     return res.data;
   }
 

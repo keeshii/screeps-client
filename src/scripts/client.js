@@ -63,7 +63,7 @@ export class ScreepsClient {
     this.screeps.on("message", this.onMessage);
 
 
-    return this.startScreepsConn().catch(e => console.error('client.connect()', e));
+    return this.startScreepsConn();
   }
 
   disconnect() {

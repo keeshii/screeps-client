@@ -81,33 +81,33 @@ let auth = new Vue({
         console.log('error auth connect');
       });
     },
-		connect() {
+    connect() {
       if ((!this.email && !this.username) || !this.password) {
         if (Vue.router.currentRoute.name !== 'login')
           Vue.router.replace({name: 'login', query: {backto: Vue.router.currentRoute.path}});
         return;
       }
-			if (eventBus.api) eventBus.api.disconnect();
-			if (eventBus.client) eventBus.client.disconnect();
+      if (eventBus.api)
+        eventBus.api.disconnect();
+      if (eventBus.client)
+        eventBus.client.disconnect();
 
-			let api = new ScreepsAPI({
-			    host: this.host,
-			    port: this.port,
-			    secure: this.secure,
+      let api = new ScreepsAPI({
+        host: this.host,
+        port: this.port,
+        secure: this.secure,
 
-			    email: this.email || this.username,
-			    password: this.password,
-			  })
-			let client = new ScreepsClient(api);
-			client.connect().then(() => {
+        email: this.email || this.username,
+        password: this.password,
+      })
+      let client = new ScreepsClient(api);
+      return client.connect().then(() => {
         this.save();
-			  eventBus.api = api;
-			  eventBus.client = client;
-			  //Vue.router.replace('/');
-			}).catch(() => {
-        console.log('error auth connect');
+        eventBus.api = api;
+        eventBus.client = client;
+        //Vue.router.replace('/');
       });
-		},
+    },
 
     receiveMessage(event) {
       console.log('WINDOW MESSAGE', event);

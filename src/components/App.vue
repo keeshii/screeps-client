@@ -25,8 +25,8 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link :to="{name: 'logout'}" class="nav-link" active-class="active">
-            logout
+          <router-link :to="{name: 'profile'}" class="nav-link" active-class="active">
+            profile
           </router-link>
         </li>
       </ul>
