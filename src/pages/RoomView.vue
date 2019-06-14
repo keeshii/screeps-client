@@ -21,8 +21,9 @@
       </ul>
 
       <div tab-room>
+        <button class="btn btn-sm btn-dark mr-2" @click="showPlaceSpawnModal()">Place spawn</button>
+
         <form class="form-inline">
-          <button class="btn btn-sm btn-dark mr-2" @click="showPlaceSpawnModal()">Place spawn</button>
 
           <select :value="roomName" @input="navigateToRoom($event.target.value)"
             class="form-control custom-select custom-select-sm mr-2"
@@ -34,9 +35,6 @@
 
           <input id="room" :value="roomName" @change="navigateToRoom($event.target.value)"
             class="form-control form-control-sm mr-2" />
-
-          <router-link :to="{name:'map', query: {room: roomName}}"
-            class="btn btn-sm btn-primary">map</router-link>
 
         </form>
       </div>
@@ -51,10 +49,13 @@
 
     <div class="room-preview" tab-room>
       <div class="room-list">
-        <room-map v-for="roomName in rooms" :key="roomName" :room-name="roomName" :api="api" @click="navigateToRoom(roomName)"></room-map>
+        <room-map v-for="roomName in rooms"
+          :key="roomName" :room-name="roomName" :api="api"
+          @click="navigateToRoom(roomName)">
+        </room-map>
       </div>
       <div class="game-container">
-        <game :client="client"></game>
+        <game :client="client" v-if="tabName === 'room'"></game>
       </div>
     </div>
 
@@ -135,12 +136,10 @@ export default {
 
   watch: {
     'client': function(client) {
-      console.log('watch client');
       this.setClientRoom();
     },
 
     'roomName': function(roomName) {
-      console.log('watch roomName');
       this.setClientRoom();
     }
   },
@@ -183,8 +182,14 @@ export default {
     },
 
     setClientRoom() {
+      if (this.roomName === '-') {
+        this.roomName = '';
+      }
+
       if (this.client) {
-        if (this.roomName === "" && this.client.rooms) {
+        if (this.roomName === '' && this.client.roomName !== '') {
+          this.navigateToRoom(this.client.roomName);
+        } else if (this.roomName === '' && this.client.rooms) {
           this.navigateToRoom(this.client.rooms[0]);
         }
         this.client.setRoom(this.roomName);
@@ -314,7 +319,7 @@ export default {
 
   .room-preview .game-container {
     background: #444;
-    display: flex;
+    display: block;
     flex: 1 1;
   }
 

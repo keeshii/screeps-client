@@ -15,7 +15,7 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link :to="{name: 'room', params: {roomName: 'E0N0'}}" class="nav-link" active-class="active">
+          <router-link :to="{name: 'room', params: {roomName: '-'}}" class="nav-link" active-class="active">
             room
           </router-link>
         </li>

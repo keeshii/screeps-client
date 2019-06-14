@@ -10,14 +10,13 @@
 import eventBus from '../global-events';
 
 var CANVAS_SIZE = 750,
-    CANVAS_MIN_SIZE = 100;
-
-var resizeRef;
+    CANVAS_MIN_SIZE = 350;
 
 export default {
   props: ['client'],
   data() {
     return {
+      resizeRef: undefined
     }
   },
 
@@ -34,12 +33,12 @@ export default {
   },
 
   created() {
-    resizeRef = this.resizeView.bind(this);
-    window.addEventListener('resize', resizeRef);
+    this.resizeRef = () => setTimeout(this.resizeView.bind(this));
+    window.addEventListener('resize', this.resizeRef);
   },
 
   destroyed() {
-    window.removeEventListener('resize', resizeRef);
+    window.removeEventListener('resize', this.resizeRef);
   },
 
   mounted() {
@@ -74,9 +73,13 @@ export default {
           if (!this.client) {
             return;
           }
-          var width = this.$el.parentElement.offsetWidth,
-              height = this.$el.parentElement.offsetHeight,
+          var width = window.innerWidth,
+              height = window.innerHeight - 180 - 56 * 2,
               size = Math.max(CANVAS_MIN_SIZE, Math.min(width, height));
+
+          if (size > this.$el.parentElement.offsetWidth) {
+            size = this.$el.parentElement.offsetWidth;
+          }
 
           this.$el.style.width = size + 'px';
           this.$el.style.height = size + 'px';
@@ -105,6 +108,7 @@ export default {
     background: #444;
     margin: 0 auto;
     padding: 20px;
+    width: 100%;
   }
 
   .game-canvas-container canvas {

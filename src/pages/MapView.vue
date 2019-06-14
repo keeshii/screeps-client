@@ -22,11 +22,25 @@ import Game from '../components/Game.vue';
 import RoomMap from '../components/RoomMap.vue';
 import eventBus from '../global-events';
 
+const DEFAULT_ROOM = 'W5N5';
+
 function fromRoomName(roomName) {
-  let [name,,shard,h,wx,v,wy] = roomName.match(/^((\w+)\/)?([WE])([0-9]+)([NS])([0-9]+)$/);
+  let pattern = /^((\w+)\/)?([WE])([0-9]+)([NS])([0-9]+)$/;
+  let match = null;
+
+  if (roomName) {
+    match = roomName.match(pattern);
+  }
+  if (match === null && eventBus.client && eventBus.client.roomName) {
+    match = eventBus.client.roomName.match(pattern);
+  }
+  if (match === null) {
+    match = DEFAULT_ROOM.match(pattern);
+  }
+  let [name,,shard,h,wx,v,wy] = match;
   if(h == 'W') wx = ~wx;
   if(v == 'N') wy = ~wy;
-  return [shard, wx, wy]
+  return [shard, wx - 1, wy - 1]
 }
 
 function toRoomName([shard, x, y]) {
@@ -44,17 +58,15 @@ export default {
   props: ['shard'],
 
   data() {
-    let xoffset = -6;
-    let yoffset = -6;
+    let xoffset, yoffset;
 
-    if (this.$route.query.room) {
-      let [shard, wx, wy] = fromRoomName(this.$route.query.room);
-      this.shard = shard;
-      xoffset = wx;
-      yoffset = wy;
-    }
+    let [shard, wx, wy] = fromRoomName(this.$route.query.room);
+    this.shard = shard;
+    xoffset = wx;
+    yoffset = wy;
 
     return {
+      resizeRef: undefined,
       squareSize: 150,
       totalMovement: 0,
       pan: {x: 0, y: 0},
@@ -66,10 +78,32 @@ export default {
     }
   },
 
+  created() {
+    this.resizeRef = () => setTimeout(this.resizeView.bind(this));
+    window.addEventListener('resize', this.resizeRef);
+  },
+
+  destroyed() {
+    window.removeEventListener('resize', this.resizeRef);
+  },
+
   mounted() {
-      this.offsetWidth = this.$refs.mapview.offsetWidth;
-      this.offsetHeight = this.$refs.mapview.offsetHeight;
-      console.log('mapView mounted', this.offsetWidth, this.offsetHeight, this.hsquares, this.vsquares);
+    this.resizeView();
+    let hq = this.hsquares, vq = this.vsquares;
+
+    if (hq % 2 === 0) {
+      hq++;
+      this.xoffset--;
+    }
+
+    if (vq % 2 === 0) {
+      vq++;
+      this.yoffset--;
+    }
+
+    this.pan.x = Math.round(((hq * this.squareSize) - this.offsetWidth) / 2) - this.squareSize;
+    this.pan.y = Math.round(((vq * this.squareSize) - this.offsetHeight) / 2) - this.squareSize;
+    console.log('pan', this.pan.x, this.pan.y);
   },
 
   computed: {
@@ -173,6 +207,11 @@ export default {
         e.preventDefault();
         e.stopPropagation();
       }
+    },
+
+    resizeView() {
+      this.offsetWidth = this.$refs.mapview.offsetWidth;
+      this.offsetHeight = this.$refs.mapview.offsetHeight;
     }
   },
 

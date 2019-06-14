@@ -25,7 +25,7 @@
       @change="changeCode">
     </codemirror>
 
-    <!-- Modal -->
+    <!-- Add file -->
     <div class="modal show" tabindex="-1" v-if="isAddVisible">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -55,7 +55,7 @@
     </div>
     <div class="modal-backdrop show" v-if="isAddFileVisible"></div>
 
-  </div>
+    </div>
 </template>
 
 <script>
@@ -107,7 +107,6 @@ export default {
 	methods: {
 		async load() {
 			let r = await eventBus.api.code(this.branch);
-			console.log('code', r);
 			let {modules} = r;
 			if (modules)
 				this.modules = modules;
@@ -138,18 +137,19 @@ export default {
                 },
                 remove() {
                   if (this.module === 'main') {
+                    if (this.branch !== 'default') {
+                      this.isDeleteBranchVisible = true;
+                      return;
+                    }
                     return;
                   }
                   var files = Object.keys(this.modules);
                   var index = files.indexOf(this.module);
-                  console.log(this.module, this.modules, files, index);
                   files = files.filter(module => module !== this.module);
                   var newModules = {};
                   files.forEach(module => newModules[module] = this.modules[module]);
                   this.modules = newModules;
                   this.module = files[index === files.length ? index - 1 : index];
-                  console.log(this.module, this.modules, files, index);
-                  this.save();
                 },
 		save() {
 			eventBus.api.setCode(this.branch, this.modules);
@@ -175,7 +175,17 @@ export default {
 }
 
 .codepane .navbar {
-  justify-content: space-between;
+  margin-bottom: .25rem;
+  margin-top: .25rem;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+.codepane .navbar button,
+.codepane .navbar input,
+.codepane .navbar select {
+  margin-bottom: .25rem;
+  margin-top: .25rem;
 }
 
 .codepane .CodeMirror {
