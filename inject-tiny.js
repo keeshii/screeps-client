@@ -1,1 +1,0 @@
-(d=>{s=d.createElement('script');s.setAttribute('src','//screeps.ricochet1k.net/inject.js');d.body.appendChild(s);})(document)

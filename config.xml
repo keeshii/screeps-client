@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="eu.ryuu.screeps" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Screeps</name>
+    <description>
+        Mobile client for Screeps.
+    </description>
+    <author email="keeshii@ptcg.eu" href="http://ryuu.eu">
+        keeshii
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <preference name="android-fitsSystemWindows" value="true" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" cleartextTrafficPermitted="true" />
+        </edit-config>
+        <resource-file src="resources/android/res/mipmap-anydpi-v26/ic_launcher_round.xml" target="res/mipmap-anydpi-v26/ic_launcher_round.xml" />
+        <resource-file src="resources/android/res/mipmap-anydpi-v26/ic_launcher.xml" target="res/mipmap-anydpi-v26/ic_launcher.xml" />
+        <resource-file src="resources/android/res/mipmap-hdpi/ic_launcher_foreground.png" target="res/mipmap-hdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/android/res/mipmap-hdpi/ic_launcher_round.png" target="res/mipmap-hdpi/ic_launcher_round.png" />
+        <resource-file src="resources/android/res/mipmap-hdpi/ic_launcher.png" target="res/mipmap-hdpi/ic_launcher.png" />
+        <resource-file src="resources/android/res/mipmap-mdpi/ic_launcher_foreground.png" target="res/mipmap-mdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/android/res/mipmap-mdpi/ic_launcher_round.png" target="res/mipmap-mdpi/ic_launcher_round.png" />
+        <resource-file src="resources/android/res/mipmap-mdpi/ic_launcher.png" target="res/mipmap-mdpi/ic_launcher.png" />
+        <resource-file src="resources/android/res/mipmap-xhdpi/ic_launcher_foreground.png" target="res/mipmap-xhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/android/res/mipmap-xhdpi/ic_launcher_round.png" target="res/mipmap-xhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/android/res/mipmap-xhdpi/ic_launcher.png" target="res/mipmap-xhdpi/ic_launcher.png" />
+        <resource-file src="resources/android/res/mipmap-xxhdpi/ic_launcher_foreground.png" target="res/mipmap-xxhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/android/res/mipmap-xxhdpi/ic_launcher_round.png" target="res/mipmap-xxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/android/res/mipmap-xxhdpi/ic_launcher.png" target="res/mipmap-xxhdpi/ic_launcher.png" />
+        <resource-file src="resources/android/res/mipmap-xxxhdpi/ic_launcher_foreground.png" target="res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/android/res/mipmap-xxxhdpi/ic_launcher_round.png" target="res/mipmap-xxxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/android/res/mipmap-xxxhdpi/ic_launcher.png" target="res/mipmap-xxxhdpi/ic_launcher.png" />
+        <resource-file src="resources/android/res/values/ic_launcher_background.xml" target="res/values/ic_launcher_background.xml" />
+    </platform>
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+    </platform>
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
+</widget>

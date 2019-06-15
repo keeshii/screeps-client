@@ -172,6 +172,7 @@ export default {
 .codepane {
   flex: 1 1;
   flex-direction: column;
+  min-height: 150px;
 }
 
 .codepane .navbar {

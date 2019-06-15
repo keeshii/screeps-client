@@ -111,6 +111,7 @@ export default {
   background: #222;
   flex-direction: column;
   height: 100%;
+  min-height: 150px;
 }
 
 .console-lines {
