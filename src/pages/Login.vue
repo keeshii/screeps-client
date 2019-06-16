@@ -17,7 +17,7 @@
           <label for="secure" class="form-check-label">Secure</label>
         </div>
         <div class="form-group">
-          <label for="username">username:</label>
+          <label for="username">username or email:</label>
           <input id="username" v-model="auth.username" class="form-control" />
         </div>
         <div class="form-group">

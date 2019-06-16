@@ -310,11 +310,18 @@ export default {
     flex: 0 0 auto;
     flex-direction: row;
     overflow-x: auto;
+    padding-left: 15px;
   }
 
   .room-preview .room-list .roomMap2 {
+    box-sizing: content-box;
     flex: 0 0 auto;
-    margin: 0 15px
+    padding-right: 15px;
+    position: relative;
+  }
+
+  .room-preview .room-list .roomMap2 .roomMapName {
+    right: 15px;
   }
 
   .room-preview .game-container {
