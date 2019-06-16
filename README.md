@@ -1,5 +1,5 @@
 # screeps-client
-Custom client for Screeps using PIXI.js. The code was designed with the mobile devices in mind. The application can be easly wrapped by cordova and run natively as an application on the phone.
+Custom client for Screeps using PIXI.js. The code was designed with the mobile devices in mind. The application can be easly wrapped by cordova and run natively on a phone.
 
 ![screenshot1](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-1.png)
 ![screenshot2](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-2.png)
@@ -17,7 +17,7 @@ Due to CORS it is not possible to connect to anything hosted on the other domain
 
 Make sure to install screepsmod-auth. User can register only if server is not protected by the password. Once registered the password can be set.
 
-It is possible to register to servers with password, but it requires a single change in the [register.js](https://github.com/ScreepsMods/screepsmod-auth/blob/f7d6a6135e04a9c9f5c578b6778b0a15556bc836/lib/register.js#L39) of screepsmod-auth. The conditional statement should be following:
+It is possible to register to servers with password, but it requires a change in the [register.js](https://github.com/ScreepsMods/screepsmod-auth/blob/f7d6a6135e04a9c9f5c578b6778b0a15556bc836/lib/register.js#L39) of screepsmod-auth. The conditional statement should be following:
 ```
 if(process.env.SERVER_PASSWORD !== body.serverPassword) return res.json({
     error: "Registration is automatically disabled. A server password has been set."
