@@ -19,9 +19,7 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <!-- debuggable=true makes cordova ignore SSL errors and the app is connecting
-            to private servers, which often uses self-signed SSL certificates. -->
-            <application android:usesCleartextTraffic="true" android:debuggable="true" />
+            <application android:usesCleartextTraffic="true" />
         </edit-config>
         <resource-file src="resources/android/res/values/ic_launcher_background.xml" target="/app/src/main/res/values/ic_launcher_background.xml" />
         <icon background="@color/ic_launcher_background" density="mdpi"

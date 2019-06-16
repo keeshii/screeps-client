@@ -6,11 +6,15 @@
     "ecosystem:cordova"
   ],
   "main": "index.js",
+  "//": "sslFix makes cordova ignore SSL errors and the app is connecting to private servers, which often uses self-signed SSL certificates.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --host 0.0.0.0 --port 8091",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "build:android": "npm run build ; cordova platform add android ; cordova build android --release"
+    "cordova:add:android": "cordova platform add android",
+    "cordova:sslFix": "replace \"super.onReceivedSslError\\([\\w\\s,]+\\);\" \"handler.proceed();\" platforms --recursive --include=\"*.java\"",
+    "cordova:build": "cordova build android --release",
+    "build:android": "npm run build ; npm run cordova:add:android ; npm run cordova:sslFix ; npm run cordova:build"
   },
   "author": "keeshii",
   "license": "MIT",
@@ -20,9 +24,10 @@
     "babel-preset-es2015-rollup": "^3.0.0",
     "babel-preset-stage-0": "^6.22.0",
     "css-loader": "^0.25.0",
-    "path": "^0.12.7",
     "pako": "^1.0.10",
+    "path": "^0.12.7",
     "pixi.js": "^4.3.5",
+    "replace": "^1.1.0",
     "rollup": "^0.41.4",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-commonjs": "^7.0.0",
