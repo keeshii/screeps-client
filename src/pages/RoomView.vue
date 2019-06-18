@@ -161,14 +161,6 @@ export default {
     memory() {
       return this.client && this.client.cpuMemory? this.client.cpuMemory.memory : 0;
     },
-    // roomName() {
-    //   if (this.)
-    //   return this.client && this.client.roomName || "";
-    // },
-    shards() {
-      return this.client && this.client.shards || {};
-    },
-
     rooms() {
       return this.client && this.client.rooms || [];
     }
@@ -180,13 +172,14 @@ export default {
     },
 
     setClientRoom() {
+      let roomName = (this.roomName || '').trim();
       if (this.client) {
-        if (this.roomName === '' && this.client.roomName !== '') {
+        if (!roomName && this.client.roomName !== '') {
           this.navigateToRoom(this.client.roomName);
-        } else if (this.roomName === '' && this.client.rooms) {
+        } else if (!roomName && this.client.rooms) {
           this.navigateToRoom(this.client.rooms[0]);
         }
-        this.client.setRoom(this.roomName);
+        this.client.setRoom(roomName);
       }
     },
 

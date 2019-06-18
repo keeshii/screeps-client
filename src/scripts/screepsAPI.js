@@ -6,18 +6,17 @@ import { Buffer } from 'buffer';
 
 export class ScreepsAPI extends EventEmitter {
   set email(v) {
-    this.opts.email = v
+    this.opts.email = v;
   }
 
   set password(v) {
-    this.opts.password = v
+    this.opts.password = v;
   }
 
   constructor (opts) {
-    super()
-    opts = opts || {}
-    // if (!opts.email || !opts.password) throw new Error('Email and password REQUIRED')
-    this.opts = opts
+    super();
+    opts = opts || {};
+    this.opts = opts;
     if (opts.host && opts.port && opts.secure !== undefined)
       this.prefix = (opts.secure? 'https' : 'http') + '://' + opts.host + ":" + opts.port
     else
@@ -28,6 +27,7 @@ export class ScreepsAPI extends EventEmitter {
     this.ws = null;
     this.connected = false;
     this.socketAuth = false;
+    this.shard = '';
   }
 
   async rawreq(method, path, body) {
@@ -134,8 +134,9 @@ export class ScreepsAPI extends EventEmitter {
     return res.data;
   }
 
-  async console(expression) {
-    let res = await this.req('POST', '/api/user/console', {expression});
+  async console(expression, shard = '') {
+    shard = shard || this.shard;
+    let res = await this.req('POST', '/api/user/console', {expression, shard});
     return res.data;
   }
 
@@ -237,8 +238,9 @@ export class ScreepsAPI extends EventEmitter {
 
   get memory () {
     return {
-      get: (path, def) => {
-        return this.req('GET', `/api/user/memory`, {path: path || ''})
+      get: (path, def, shard = '') => {
+        shard = shard || this.shard;
+        return this.req('GET', `/api/user/memory`, {path: path || '', shard})
           .then(data => {
             if (data.body.error) throw data.body.error
             let ret = data.body.data || def
@@ -246,8 +248,9 @@ export class ScreepsAPI extends EventEmitter {
             return ret
           })
       },
-      set: (path, value) => {
-        return this.req('POST', `/api/user/memory`, {path, value})
+      set: (path, value, shard = '') => {
+        shard = shard || this.shard;
+        return this.req('POST', `/api/user/memory`, {path, value, shard})
           .then(data => {
             if (data.body.error) throw data.body.error
             return data.body.data
@@ -258,8 +261,9 @@ export class ScreepsAPI extends EventEmitter {
 
   get market () {
     return {
-      index: () => {
-        return this.req('GET', `/api/game/market/index`, null)
+      index: (shard = '') => {
+        shard = shard || this.shard;
+        return this.req('GET', `/api/game/market/index`, {shard})
           .then(data => {
             if (data.body.error) throw data.body.error
             let ret = data.body.list
@@ -267,8 +271,9 @@ export class ScreepsAPI extends EventEmitter {
             return ret
           })
       },
-      orders: (type) => {
-        return this.req('GET', `/api/game/market/orders?resourceType=${type}`, null)
+      orders: (resourceType, shard = '') => {
+        shard = shard || this.shard;
+        return this.req('GET', '/api/game/market/orders', {resourceType, shard})
           .then(data => {
             if (data.body.error) throw data.body.error
             let ret = data.body.list
@@ -276,8 +281,9 @@ export class ScreepsAPI extends EventEmitter {
             return ret
           })
       },
-      stats: (type) => {
-        return this.req('GET', `/api/game/market/stats?resourceType=${type}`, null)
+      stats: (resourceType, shard = '') => {
+        shard = shard || this.shard;
+        return this.req('GET', '/api/game/market/stats', {resourceType, shard})
           .then(data => {
             if (data.body.error) throw data.body.error
             let ret = data.body.stats
@@ -291,8 +297,9 @@ export class ScreepsAPI extends EventEmitter {
   /**
    *  {ok: 1, time: 17652988}
    */
-  async time() {
-    let res = await this.req('GET', '/api/game/time');
+  async time(shard = '') {
+    shard = shard || this.shard;
+    let res = await this.req('GET', '/api/game/time', {shard});
     return res.data;
   }
 
@@ -315,8 +322,9 @@ export class ScreepsAPI extends EventEmitter {
   /**
    * {"ok":1,"room":{"_id":"E82N7","status":"normal","novice":1488620978881}}
    */
-  async roomStatus(room) {
-    let res = await this.req('GET', '/api/game/room-status', {room});
+  async roomStatus(room, shard = '') {
+    shard = shard || this.shard;
+    let res = await this.req('GET', '/api/game/room-status', {room, shard});
     return res.data;
   }
 
@@ -324,17 +332,12 @@ export class ScreepsAPI extends EventEmitter {
    * {"ok":1,"terrain":[{"_id":"5873be0611e3e4361b4da2c7","room":"E82N7","terrain":<2500 of 0, 1 or 2 as a string>,"type":"terrain"}]}
    */
   roomTerrainCache = {};
-  async roomTerrain(room, encoded) {
+  async roomTerrain(room, encoded, shard = '') {
+    shard = shard || this.shard;
     let cached;
     if (cached = this.roomTerrainCache[room + !!encoded])
       return cached;
-    let params = {room, encoded: encoded? 'true' : undefined};
-    let roomParts = room.split('/');
-    if (roomParts.length === 2) {
-      params.shard = roomParts[0];
-      params.room = roomParts[1];
-    }
-    let res = await this.req('GET', '/api/game/room-terrain', params);
+    let res = await this.req('GET', '/api/game/room-terrain', {room, encoded: encoded? 1 : 0, shard});
     this.roomTerrainCache[room + !!encoded] = res.data;
     return res.data;
   }
@@ -430,8 +433,9 @@ export class ScreepsAPI extends EventEmitter {
     return res.data;
   }
 
-  async placeSpawn(name, room, x, y) {
-    let res = await this.req('POST', '/api/game/place-spawn', {name, room, x, y});
+  async placeSpawn(name, room, x, y, shard = '') {
+    shard = shard || this.shard;
+    let res = await this.req('POST', '/api/game/place-spawn', {name, room, x, y, shard});
     return res.data;
   }
 }

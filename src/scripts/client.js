@@ -1,9 +1,7 @@
-// import 'pixi.js/dist/pixi'; // TODO: Get imports working better with Rollup...
+import * as PIXI from 'pixi.js'
 
 import {Room} from './room';
 import {tween} from './tween';
-
-console.log("PIXI: ", PIXI);
 
 var type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
@@ -102,16 +100,28 @@ export class ScreepsClient {
     if (!rooms)
       rooms = [];
 
+    this.shards = [];
+
     for (let shard in shards) {
-      for (let room of shards[shard]) {
-        rooms.push(shard + '/' + room);
+      this.shards.push(shard);
+
+      // By default choose shard where user has rooms
+      if (shards[shard].length) {
+        screeps.shard = shard;
+        rooms = shards[shard];
       }
     }
 
-    this.shards = shards;
-    console.log('SHARDS', shards);
+    // If user has no room in any shard, choose the first one
+    if (this.shards.length && !screeps.shard) {
+        screeps.shard = this.shards[0];
+    }
+
+    if (this.shards.length === 0) {
+      this.shards = null;
+    }
+
     this.rooms = rooms;
-    console.log('ROOMS', rooms);
 
     if (this.roomName !== "")
       this.setRoom(this.roomName);
@@ -120,17 +130,21 @@ export class ScreepsClient {
   }
 
   setRoom(roomName) {
-    console.log('client setRoom', roomName);
     this.roomName = roomName;
     if (this[ROOM]){
-      this.screeps.unsubscribe(`room:${this[ROOM].name}`, this.onRoomUpdate);
+      let shardName = this.screeps.shard
+        ? this.screeps.shard + '/' + this[ROOM].name
+        : this[ROOM].name;
+      this.screeps.unsubscribe(`room:${shardName}`, this.onRoomUpdate);
       this[STAGE].removeChild(this[ROOM].g);
       this[ROOM] = undefined;
     }
 
     if (roomName !== "") {
-      // this.screeps.unsubscribe(`room:${roomName}`, this.onRoomUpdate);
-      this.screeps.subscribe(`room:${roomName}`, this.onRoomUpdate);
+    let shardName = this.screeps.shard
+        ? this.screeps.shard + '/' + roomName
+        : roomName;
+      this.screeps.subscribe(`room:${shardName}`, this.onRoomUpdate);
       this[ROOM] = new Room(this.screeps, roomName);
       this[STAGE].addChild(this[ROOM].g);
     }

@@ -1,17 +1,26 @@
 <template>
-  <div class="mapview" ref="mapview"
-    @mousedown.capture="mouseDown($event)" @mousemove.capture="mouseMove($event)" @mouseup.capture="mouseUp($event)"
-    @touchstart.capture="mouseDown($event)" @touchmove.capture="mouseMove($event)" @touchend.capture="mouseUp($event)"
-    @click.capture="click($event)" >
+  <div>
+    <div class="mapview" ref="mapview" v-if="renderMap"
+      @mousedown.capture="mouseDown($event)" @mousemove.capture="mouseMove($event)" @mouseup.capture="mouseUp($event)"
+      @touchstart.capture="mouseDown($event)" @touchmove.capture="mouseMove($event)" @touchend.capture="mouseUp($event)"
+      @click.capture="click($event)" >
 
-    <div class="mapview-inner" :style="{left: xpan + 'px', top: ypan + 'px', width: (hsquares * squareSize)+'px', height: (vsquares * squareSize)+'px'}">
-      <div class="y" v-for="y in vsquares" :key="y + yoffsetreal" :style="{width: hsquares*squareSize+'px', height: squareSize+'px'}">
-        <div class="x" v-for="x in hsquares" :key="x + xoffsetreal" style="display: inline-block;" :style="{width: squareSize+'px', height: squareSize+'px'}">
-          <room-map :style="{width: squareSize + 'px', height: squareSize + 'px'}" :room-name="roomName(x + xoffsetreal, y + yoffsetreal)" :api="api" @click="navigateToRoom(roomName(x + xoffsetreal, y + yoffsetreal))"></room-map>
+      <div class="mapview-inner" :style="{left: xpan + 'px', top: ypan + 'px', width: (hsquares * squareSize)+'px', height: (vsquares * squareSize)+'px'}">
+        <div class="y" v-for="y in vsquares" :key="y + yoffsetreal" :style="{width: hsquares*squareSize+'px', height: squareSize+'px'}">
+          <div class="x" v-for="x in hsquares" :key="x + xoffsetreal" style="display: inline-block;" :style="{width: squareSize+'px', height: squareSize+'px'}">
+            <room-map :style="{width: squareSize + 'px', height: squareSize + 'px'}" :room-name="roomName(x + xoffsetreal, y + yoffsetreal)" :api="api" @click="navigateToRoom(roomName(x + xoffsetreal, y + yoffsetreal))"></room-map>
+          </div>
         </div>
       </div>
     </div>
 
+    <div class="mapview-shard navbar navbar-expand-md navbar-dark bg-dark" v-if="shards">
+      <form class="form-inline">
+        <select class="form-control form-control-sm" v-model="shardName">
+          <option v-for="name in shards" :value="name">{{name}}</option>
+        </select>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -61,12 +70,13 @@ export default {
     let xoffset, yoffset;
 
     let [shard, wx, wy] = fromRoomName(this.$route.query.room);
-    this.shard = shard;
     xoffset = wx;
     yoffset = wy;
 
     return {
+      shardName: '',
       resizeRef: undefined,
+      renderMap: true,
       squareSize: 150,
       totalMovement: 0,
       pan: {x: 0, y: 0},
@@ -81,6 +91,7 @@ export default {
   created() {
     this.resizeRef = () => setTimeout(this.resizeView.bind(this));
     window.addEventListener('resize', this.resizeRef);
+    this.setShard();
   },
 
   destroyed() {
@@ -134,6 +145,16 @@ export default {
 
     ypan() {
       return -this.pan.y - this.squareSize;
+    },
+
+    shards() {
+      return eventBus.client && eventBus.client.shards;
+    },
+  },
+
+  watch: {
+    'shardName': function(name) {
+      this.setShard(name);
     }
   },
 
@@ -211,6 +232,25 @@ export default {
     resizeView() {
       this.offsetWidth = this.$refs.mapview.offsetWidth;
       this.offsetHeight = this.$refs.mapview.offsetHeight;
+    },
+
+    refreshMap() {
+      this.renderMap = false;
+      this.$nextTick().then(() => {
+        this.renderMap = true;
+      });
+    },
+
+    setShard(shard) {
+      if (!shard && eventBus.api && eventBus.api.shard) {
+        this.shardName = eventBus.api.shard;
+      }
+
+      if (shard && eventBus.api) {
+        eventBus.api.shard = shard;
+        this.shardName = shard;
+        this.refreshMap();
+      }
     }
   },
 
@@ -236,6 +276,17 @@ export default {
 
 .mapview-inner {
   position: absolute;
+}
+
+.mapview-shard {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+}
+
+.mapview-shard select {
+  min-width: 150px;
 }
 
 </style>

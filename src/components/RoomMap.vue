@@ -73,7 +73,11 @@ export default {
       return bg;
     },
     msg() {
-      return "roomMap2:"+this.roomName;
+      let shardName = this.roomName;
+      if (this.api.shard) {
+        shardName = this.api.shard + '/' + this.roomName;
+      }
+      return "roomMap2:" + shardName;
     },
     kinds() {
       return this.data? Object.keys(this.data) : [];

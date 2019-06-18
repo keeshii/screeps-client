@@ -53,17 +53,19 @@ import { ScreepsAPI } from '../scripts/screepsAPI';
 
 export default {
   data() {
-  	return {
-          host: window.location.hostname,
-          port: window.location.port,
-          secure: window.location.protocol === 'https:',
-          username: '',
-          email: '',
-          password: '',
-          serverPassword: '',
-          status: '',
-          error: false
-  	}
+    var saved = auth.getSaved();
+
+    return {
+      host: saved.host,
+      port: saved.port,
+      secure: saved.secure,
+      username: '',
+      email: '',
+      password: '',
+      serverPassword: '',
+      status: '',
+      error: false
+    }
   },
 
   methods: {
