@@ -109,8 +109,6 @@
 
 <script>
 
-import SplitPane from '../components/SplitPane.vue';
-import SplitPaneVertical from '../components/SplitPaneVertical.vue';
 import Game from '../components/Game.vue';
 import Console from '../components/Console.vue';
 import RoomMap from '../components/RoomMap.vue';
@@ -182,10 +180,6 @@ export default {
     },
 
     setClientRoom() {
-      if (this.roomName === '-') {
-        this.roomName = '';
-      }
-
       if (this.client) {
         if (this.roomName === '' && this.client.roomName !== '') {
           this.navigateToRoom(this.client.roomName);
@@ -257,8 +251,6 @@ export default {
   components: { 
     Game,
     Console,
-    SplitPane,
-    SplitPaneVertical,
     RoomMap,
     CodePane,
   },
@@ -290,7 +282,7 @@ export default {
   }
 
   .cpu-stats {
-    display: flex;
+    align-items: center;
   }
 
   .cpu-stats > span {

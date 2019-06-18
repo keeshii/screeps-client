@@ -103,7 +103,6 @@ export default {
 
     this.pan.x = Math.round(((hq * this.squareSize) - this.offsetWidth) / 2) - this.squareSize;
     this.pan.y = Math.round(((vq * this.squareSize) - this.offsetHeight) / 2) - this.squareSize;
-    console.log('pan', this.pan.x, this.pan.y);
   },
 
   computed: {

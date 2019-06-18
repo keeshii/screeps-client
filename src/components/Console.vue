@@ -7,9 +7,10 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
       <div class="input-group">
         <input v-model="command" class="form-control form-control-sm" />
-        <div class="input-group-append">
+        <div class="input-group-append mr-2">
           <button @click.prevent="send()" class="btn btn-sm btn-primary">Send</button>
         </div>
+        <button @click.prevent="clear()" class="btn btn-sm btn-primary">Clear</button>
       </div>
     </nav>
   </div>
@@ -54,6 +55,11 @@ export default {
     reconnect(api) {
 
     },
+
+    clear() {
+      this.lines = [];
+    },
+
     connect(api) {
       if (api && api.socketAuth && api.subscribe){
         console.log('Console.connect', `user:${api.user._id}/console`, api)

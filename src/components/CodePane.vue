@@ -53,7 +53,7 @@
         </div>
       </div>
     </div>
-    <div class="modal-backdrop show" v-if="isAddFileVisible"></div>
+    <div class="modal-backdrop show" v-if="isAddVisible"></div>
 
     </div>
 </template>
@@ -61,7 +61,6 @@
 <script>
 import eventBus from '../global-events';
 import VueCodemirror from 'vue-codemirror';
-import VueSelect from 'vue-select';
 
 export default {
 	data() {
@@ -162,8 +161,7 @@ export default {
 		}
 	},
 	components: {
-		codemirror: VueCodemirror.codemirror,
-		VueSelect,
+            codemirror: VueCodemirror.codemirror,
 	}
 }
 </script>
