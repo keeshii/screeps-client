@@ -85,18 +85,14 @@ export default {
 			}
 		}
 	},
-	mounted() {
-		if (eventBus.api)
-			this.load();
-		else
-			this.$watch(function() { return eventBus.api }, api => {
-				console.log('api', api);
-				if (eventBus.api)
-					setTimeout( () => this.load(), 1000);
-			})
-	},
 	computed: {
 		code() {
+                        if (eventBus.api && eventBus.api.modules && this.moduleNames.length === 0) {
+                            this.modules = eventBus.api.modules;
+                        }
+                        if (this.moduleNames.length === 0) {
+                            return '// The code is not loaded. Click "Load all" button.';
+                        }
 			return this.modules[this.module] || '';
 		},
 		moduleNames() {
@@ -111,9 +107,10 @@ export default {
 				this.modules = modules;
 			else
 				this.modules = {};
+                        eventBus.api.modules = this.modules;
                         if (!this.modules[this.module]) {
                           let files = Object.keys(this.modules);
-                          this.module = files[0];
+                          this.module = files.length ? files[0] : '';
                         }
 		},
                 add() {
@@ -132,6 +129,7 @@ export default {
                     return;
                   }
                   this.modules[name] = '';
+                  this.module = name;
                   this.isAddVisible = false;
                 },
                 remove() {

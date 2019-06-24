@@ -5,13 +5,15 @@
       <div class="console-line" v-for="line in lines" v-html="line"></div>
     </div>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-      <div class="input-group">
-        <input v-model="command" class="form-control form-control-sm" />
-        <div class="input-group-append mr-2">
-          <button @click.prevent="send()" class="btn btn-sm btn-primary">Send</button>
+      <form>
+        <div class="input-group">
+          <input v-model="command" class="form-control form-control-sm" />
+          <div class="input-group-append mr-2">
+            <button @click.prevent="send()" class="btn btn-sm btn-primary">Send</button>
+          </div>
+          <button @click.prevent="clear()" class="btn btn-sm btn-primary">Clear</button>
         </div>
-        <button @click.prevent="clear()" class="btn btn-sm btn-primary">Clear</button>
-      </div>
+      </form>
     </nav>
   </div>
 
@@ -135,6 +137,10 @@ export default {
 .console-line {
   word-wrap: normal;
   margin: 0;
+}
+
+.console form {
+  width: 100%;
 }
 
 </style>

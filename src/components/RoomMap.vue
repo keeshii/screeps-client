@@ -60,15 +60,18 @@ export default {
       if (!this.api) return "";
 
       const {host, port, secure} = this.api.opts;
+      const roomName = this.api.shard
+        ? this.api.shard + '/' + this.roomName
+        : this.roomName;
 
       if (host === "screeps.com") { // official server uses a CDN
-        if (this.roomName.indexOf('/') > -1)
-          return `https://d3os7yery2usni.cloudfront.net/map/${this.roomName}.png`;
-        return `https://d3os7yery2usni.cloudfront.net/map3/${this.roomName}.png`;
+        if (roomName.indexOf('/') > -1)
+          return `https://d3os7yery2usni.cloudfront.net/map/${roomName}.png`;
+        return `https://d3os7yery2usni.cloudfront.net/map3/${roomName}.png`;
       }
 
       const proto = (secure? 'https' : 'http')
-      let bg = `${proto}://${host}:${port}/assets/map/${this.roomName}.png`;
+      let bg = `${proto}://${host}:${port}/assets/map/${roomName}.png`;
       // console.log('bg ', bg);
       return bg;
     },
