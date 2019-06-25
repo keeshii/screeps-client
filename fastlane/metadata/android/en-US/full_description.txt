@@ -1,0 +1,18 @@
+This is a client for the game Screeps. It is an open-source sandbox MMO
+RTS game for programmers, wherein the core mechanic is programming your
+units AI. You control your colony by writing JavaScript which operate
+24/7 in the single persistent real-time world filled by other players on
+par with you.
+
+Features:
+ * rendering the world map and rooms
+ * displaying the GCL, CPU and memory usage
+ * editing the source code
+ * displaying the console
+ * typing the commands to the console
+
+The plugin `screepsmod-auth` must be installed on the server in order to
+connect.
+
+More information is available on the github page
+[https://github.com/keeshii/screeps-client]

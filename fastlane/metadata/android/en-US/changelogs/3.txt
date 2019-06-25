@@ -1,0 +1,2 @@
+• Don’t load the code automatically (to save data transfer).
+• Fix for displaying map tiles for other shards.

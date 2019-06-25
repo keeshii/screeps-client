@@ -1,10 +1,10 @@
 # screeps-client
 Custom client for Screeps using PIXI.js. The code was designed with the mobile devices in mind. The application can be easly wrapped by cordova and run natively on a phone.
 
-![screenshot1](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-1.png)
-![screenshot2](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-2.png)
-![screenshot3](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-3.png)
-![screenshot4](https://raw.githubusercontent.com/keeshii/screeps-client/gh-pages/screeps-4.png)
+![screenshot1](https://raw.githubusercontent.com/keeshii/screeps-client/v0.0.3/fastlane/metadata/android/en-US/images/phoneScreenshots/00.png)
+![screenshot2](https://raw.githubusercontent.com/keeshii/screeps-client/v0.0.3/fastlane/metadata/android/en-US/images/phoneScreenshots/01.png)
+![screenshot3](https://raw.githubusercontent.com/keeshii/screeps-client/v0.0.3/fastlane/metadata/android/en-US/images/phoneScreenshots/02.png)
+![screenshot4](https://raw.githubusercontent.com/keeshii/screeps-client/v0.0.3/fastlane/metadata/android/en-US/images/phoneScreenshots/03.png)
 
 # How to use
 Due to CORS it is not possible to connect to anything hosted on the other domain than the client app. You have several options to overcome this problem.
@@ -41,4 +41,7 @@ See issues for the full list. Notably:
 - Mouse interaction
 - Memory view
 - Replay view
+- Messages
+- Orders
+- Badges
 - Login using Steam or Github
