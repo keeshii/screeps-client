@@ -70,7 +70,10 @@ export default class Tower extends GameObject {
 
 		g.lineStyle(0, 0, 0);
 		g.beginFill(0xffff00);
-		let height = (h-2) * obj.energy / obj.energyCapacity;
+
+                let energy = obj.store ? obj.store['energy'] : obj.energy;
+                let energyCapacity = obj.store ? obj.storeCapacityResource['energy'] : obj.energyCapacity;
+		let height = (h-2) * energy / energyCapacity;
 		g.drawRoundedRect(m-w+0.5, y + h - height-1, 2*w-1, height, rr);
 		g.endFill();
 

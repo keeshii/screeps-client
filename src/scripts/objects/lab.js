@@ -23,7 +23,7 @@ export default class Lab extends GameObject {
 
 		// let wh = S(3); // rectangle half-width
 		let h = S(1.7); // rectangle height
-    let ry = -S(0.5); // overlap the rectangle
+                let ry = -S(0.5); // overlap the rectangle
 
 		let droopAngle = PI/4; // angle to drop below the center line
 		let wh = r*sin(droopAngle); // rectangle half-width
@@ -60,7 +60,9 @@ export default class Lab extends GameObject {
 		g.endFill();
 
 		// energy fill
-		let e = obj.energy / obj.energyCapacity;
+                let energy = obj.store ? obj.store['energy'] : obj.energy;
+                let energyCapacity = obj.store ? obj.storeCapacityResource['energy'] : obj.energyCapacity;
+		let e = energy / energyCapacity;
 		let mehw = wh - 3; // max energy half-width
 		let ehw = mehw * e; // energy half-width
 		g.lineStyle(0, 0, 0);

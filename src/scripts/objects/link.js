@@ -53,7 +53,9 @@ export default class Link extends GameObject {
     g.lineStyle(0, 0x000000, 0);
     diamond(0x555555, 0.7);
 
-    diamond(0xffee66, 0.7 * obj.energy / obj.energyCapacity);
+    let energy = obj.store ? obj.store['energy'] : obj.energy;
+    let energyCapacity = obj.store ? obj.storeCapacityResource['energy'] : obj.energyCapacity;
+    diamond(0xffee66, 0.7 * energy / energyCapacity);
     
   }
 }
