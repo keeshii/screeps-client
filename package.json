@@ -34,7 +34,7 @@
     "vue-loader": "^17.4.2",
     "vue-template-compiler": "^2.2.1",
     "webpack": "^5.76.0",
-    "webpack-dev-server": "^2.2.0"
+    "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
     "axios": "^0.28.0",
