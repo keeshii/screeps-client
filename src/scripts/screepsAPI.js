@@ -21,8 +21,10 @@ export class ScreepsAPI extends EventEmitter {
       this.prefix = (opts.secure? 'https' : 'http') + '://' + opts.host + ":" + opts.port
     else
       this.prefix = opts.ptr ? 'https://screeps.com/ptr' : 'https://screeps.com'
- 
-    this.token = '';
+
+    this.token = opts.token || '';
+    this.email = opts.email || '';
+    this.password = opts.password || '';
     this.user = null;
     this.ws = null;
     this.connected = false;
@@ -45,52 +47,66 @@ export class ScreepsAPI extends EventEmitter {
   }
 
   async req(method, path, body) {
-    if (!this.token && !path.match(/auth/)) {
-      await this.getToken()
-      return await this.req(method, path, body);
+    if (!this.token && !this.email) {
+      throw new Error('No authentication credentials provided');
     }
-
-    let res;
 
     try {
-      res = await this.rawreq(method, path, body);
-    } catch (e) {
-      console.log('req err:', e);
-      if (path.match(/auth/))
-        throw e;
-      await this.getToken();
-      res = await this.rawreq(method, path, body);
-    }
+      let res = await this.rawreq(method, path, body);
 
-    if (res.status == 200) {
-      if (res.headers['x-token'])
-        this.token = res.headers['x-token']
-    }
-    if (res.status == 401) {
-      await this.getToken();
-      return await this.rawreq(method, path, body);
-    }
+      if (res.status == 200) {
+        if (res.headers['x-token'])
+          this.token = res.headers['x-token']
+      }
 
-    return res;
+      return res;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        throw new Error('Unauthorized: Invalid credentials');
+      }
+      throw error;
+    }
   }
 
   async basicAuthReq(method, path, body) {
-    return await axios({
-      url: this.prefix + path,
-      json: true,
-      method,
-      auth: {
-        username: this.opts.email,
-        password: this.opts.password,
-      },
-      data: method == 'POST' ? body : undefined || undefined,
-      params: method == 'GET' ? body : undefined || undefined
-    });
+    // Username/password auth for private servers
+    if (!this.email || !this.password) {
+      throw new Error('Email and password required for basic authentication');
+    }
+
+    try {
+      let res = await axios({
+        url: this.prefix + path,
+        json: true,
+        method,
+        auth: {
+          username: this.email,
+          password: this.password
+        },
+        data: method == 'POST' ? body : undefined || undefined,
+        params: method == 'GET' ? body : undefined || undefined
+      });
+
+      if (res.status == 200) {
+        if (res.headers['x-token'])
+          this.token = res.headers['x-token']
+      }
+
+      return res;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        throw new Error('Unauthorized: Invalid email or password');
+      }
+      throw error;
+    }
   }
 
   connect() {
     console.log('connect')
-    return this.getToken()
+    if (!this.token && !this.email) {
+      return Promise.reject(new Error('No credentials provided'));
+    }
+    return this.me().then(() => true);
   }
   disconnect() {
     if (this.ws) {
@@ -101,35 +117,48 @@ export class ScreepsAPI extends EventEmitter {
     }
   }
   auth(email, password) {
-    this.email = email
-    this.password = password
-    return this.getToken()
-    //(err, token) => cb(null, token !== 'unauthorized')
+    this.email = email;
+    this.password = password;
+    return this.signin();
   }
-
-
-
+  authToken(token) {
+    this.token = token;
+    return this.me();
+  }
   async register(username, email, password, serverPassword) {
     let res = await this.rawreq('POST', '/api/register/submit', {username, email, password, serverPassword});
     return res.data;
   }
 
-  async getToken() {
-    console.log('getToken')
-    let {email, password} = this.opts
-    let res = await this.req('POST', '/api/auth/signin', {email, password});
 
-    if (res.status == 200) {
-      this.token = res.data.token
-      return res.data.token;
-    } else {
-      throw 'unauthorized';
+
+  async signin() {
+    // Sign in with username/password to get token (for private servers)
+    if (!this.email || !this.password) {
+      throw new Error('Email and password required');
     }
+    let res = await this.basicAuthReq('POST', '/api/auth/signin', {
+      email: this.email,
+      password: this.password
+    });
+    if (res.data.token) {
+      this.token = res.data.token;
+    }
+    this.user = res.data;
+    return res.data;
   }
 
   async me() {
-    if (!this.token) await this.getToken();
-    let res = await this.req('GET', '/api/auth/me', null);
+    if (!this.token && !this.email) {
+      throw new Error('No credentials provided');
+    }
+    // Try token auth first, fall back to basic auth for private servers
+    let res;
+    if (this.token) {
+      res = await this.req('GET', '/api/auth/me', null);
+    } else {
+      res = await this.basicAuthReq('GET', '/api/auth/me', null);
+    }
     this.user = res.data;
     return res.data;
   }

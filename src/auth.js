@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import eventBus from './global-events';
 import { ScreepsAPI } from './scripts/screepsAPI';
-import {ScreepsClient} from './scripts/client';
+import { ScreepsClient } from './scripts/client';
 
 const DEFAULT_HOST = 'screeps.com';
 const DEFAULT_PORT = 443;
@@ -14,9 +14,10 @@ let auth = new Vue({
       host: '',
       port: '',
       secure: '',
-      username: '',
+      token: '',
       email: '',
       password: '',
+      authMethod: 'token', // 'token' or 'password'
     }
   },
 
@@ -39,15 +40,17 @@ let auth = new Vue({
           host: saved.host,
           port: saved.port,
           secure: saved.secure,
-          username: saved.username,
+          token: saved.token,
           email: saved.email,
           password: saved.password,
+          authMethod: saved.authMethod || 'token',
         };
       } else {
         return {
           host: DEFAULT_HOST,
           secure: DEFAULT_SECURE,
-          port: DEFAULT_PORT
+          port: DEFAULT_PORT,
+          authMethod: 'token'
         };
       }
     },
@@ -56,18 +59,20 @@ let auth = new Vue({
       this.host = saved.host;
       this.port = saved.port;
       this.secure = saved.secure;
-      this.username = saved.username;
+      this.token = saved.token;
       this.email = saved.email;
       this.password = saved.password;
+      this.authMethod = saved.authMethod || 'token';
     },
     save() {
       window.localStorage.setItem("saved-credentials", JSON.stringify({
         host: this.host,
         port: this.port,
         secure: this.secure,
-        username: this.username,
+        token: this.token,
         email: this.email,
         password: this.password,
+        authMethod: this.authMethod,
       }))
     },
     clearSaved() {
@@ -79,6 +84,7 @@ let auth = new Vue({
       if (eventBus.client)
         eventBus.client.disconnect();
 
+      this.token = token;
       let api = new ScreepsAPI({
         host: this.host,
         port: this.port,
@@ -87,6 +93,7 @@ let auth = new Vue({
       api.token = token;
       let client = new ScreepsClient(api);
       client.connect().then(() => {
+        this.save();
         eventBus.api = api;
         eventBus.client = client;
       }).catch(() => {
@@ -94,9 +101,9 @@ let auth = new Vue({
       });
     },
     connect() {
-      if (!this.username || !this.password) {
+      if (!this.token && !this.email) {
         if (Vue.router.currentRoute.name !== 'login')
-          Vue.router.replace({name: 'login', query: {backto: Vue.router.currentRoute.path}});
+          Vue.router.replace({ name: 'login', query: { backto: Vue.router.currentRoute.path } });
         return;
       }
       if (eventBus.api)
@@ -108,9 +115,12 @@ let auth = new Vue({
         host: this.host,
         port: this.port,
         secure: this.secure,
-        email: this.username,
+        email: this.email,
         password: this.password,
       });
+      if (this.token) {
+        api.token = this.token;
+      }
       let client = new ScreepsClient(api);
       return client.connect().then(() => {
         this.save();
@@ -131,8 +141,6 @@ let auth = new Vue({
         return;
       }
 
-      if (data.username)
-        this.username = data.username;
       if (data.email)
         this.email = data.email;
 

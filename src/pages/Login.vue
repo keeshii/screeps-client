@@ -16,14 +16,46 @@
           <input id="secure" v-model="auth.secure" type="checkbox" class="form-check-input" />
           <label for="secure" class="form-check-label">Secure</label>
         </div>
+
+        <!-- Authentication method toggle -->
         <div class="form-group">
-          <label for="username">username or email:</label>
-          <input id="username" v-model="auth.username" class="form-control" />
+          <label>Authentication Method:</label>
+          <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+            <label class="btn btn-outline-primary" :class="{ active: auth.authMethod === 'token' }">
+              <input type="radio" v-model="auth.authMethod" value="token" /> Token
+            </label>
+            <label class="btn btn-outline-primary" :class="{ active: auth.authMethod === 'password' }">
+              <input type="radio" v-model="auth.authMethod" value="password" /> Username/Password
+            </label>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="password">password:</label>
-          <input id="password" v-model="auth.password" type="password" class="form-control" />
+
+        <!-- Token authentication -->
+        <div v-if="auth.authMethod === 'token'">
+          <div class="form-group">
+            <label for="token">API Token:</label>
+            <input id="token" v-model="auth.token" type="password" class="form-control" placeholder="Enter your API token" />
+            <small class="form-text text-muted">
+              Get your token from <a href="https://screeps.com/a/#!/account/auth-tokens" target="_blank">Account Settings</a> on the Screeps website
+            </small>
+          </div>
         </div>
+
+        <!-- Username/Password authentication -->
+        <div v-else>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input id="email" v-model="auth.email" type="email" class="form-control" placeholder="Enter your email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input id="password" v-model="auth.password" type="password" class="form-control" placeholder="Enter your password" />
+          </div>
+          <small class="form-text text-muted">
+            Username/password authentication
+          </small>
+        </div>
+
         <div class="text-right">
           <button @click.prevent="login()" class="btn btn-primary">Login</button>
         </div>
@@ -62,7 +94,7 @@ export default {
   mounted() {
     if (this.$route.query.token)
       auth.externalConnect(this.$route.query.token);
-    if (this.$route.query.auto && auth.password)
+    if (this.$route.query.auto && auth.token)
       this.login();
 
       this.$watch(() => eventBus.api, api => {
